@@ -9,7 +9,7 @@ ______ _            _      ___            _      _    _ _                  _
 
 ## CMSI-1010
 ## Malek Yehya
-## 4 November 2025
+## 7 November 2025
 
 
 The goal of this project is to create a black jack simulator with pixel art gui that allows for betting, splitting, doubling down, and maybe side bets. 
