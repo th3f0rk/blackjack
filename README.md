@@ -72,3 +72,7 @@ of the pixels available on the display size i choose. I will make the screen siz
 screen adjustments since that is an edge case I don't want to handle.
 
 Ideally I make all the art in a defined size determined by pixels so centering and moving stuff around is simple. Then I don't have to worry about lots of edge cases as long as I plan out in detail the art.
+
+The minimum functionality for the art and gui will be very bare bones, likely not include the wizard or its functionality and be very primitive in the dealing of cards as well as max hand size. It will also likely 
+include lots of premade game assets that provided I have time are just place holders until the main art is finished. This ensures that I don't get to far above my head. Ideally the art is the main roadblock of the game 
+ingoring the wizard since that will take the most time to configure.nThe core gameplay loop to achieve minimum functionality will be relatively chill.
