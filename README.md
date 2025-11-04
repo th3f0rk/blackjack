@@ -1,5 +1,7 @@
-### H3 BLACK JACK GAME WITH WIZARD
-### H2 Malek Yehya
+### BLACK JACK GAME WITH WIZARD
+## Malek Yehya
+## 4 November 2025
+
 
 The goal of this project is to create a black jack simulator with pixel art gui that allows for betting, splitting, doubling down, and maybe side bets. 
 It will have one player and they will play against the house so a total of two hands. There will be a wizard which when clicked on will display a chat bubble or something that shows what the book suggests.
@@ -16,7 +18,7 @@ and then perform actions that are part of the Player's available strategy. If th
 like initial deal and bust amount from the **Hand** parent class. The **Wizard** class is just going to take into account the dealer and player hands and use those to determine the play by the book strategy. If i have lots
 of time i might include enough scenarios in the nested dictionary to handle strategy after the first deal but that is only if I finish minimum functionality.
 
-### H2 Order of Development Workflow
+### Order of Development Workflow
 
 1. The first step is making a gameplay loop that runs in the console. This is to prove that the core gameplay works and has a minimum functionality. I am unsure if **Wizard** functionality will be prioritized here. 
 (it might be the last thing I focus on)
