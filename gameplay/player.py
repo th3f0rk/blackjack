@@ -3,32 +3,67 @@ from gameplay.hand import Hand
 
 class Player(Hand):
     def __init__(self):
-        self.hand = []
-        first_action = False
-        doubled = False
-        player_end = False
+        super().__init__(self)
+        self.first_action = False
+        self.doubled = False
+        self.player_end = False
+        self.deal = False
+        self.stand = False
 
-    def first_action():
-        if self.hand.len() == 2:
-            first_action = True
-            return first_action
+    def deal(self):
+        super.deal()
+        self.isdeal = True
+        return self.isdeal
+        
+    def first_action(self):
+        if self.isdeal == True:
+            self.first_action = True
+            return self.first_action
 
-    def split():
+    def split(self): #may remove if it gets to complicated
         if first_action == True:
             hand1 = self.hand[0]
             hand2 = self.hand[1]
-            return hand1, hand2
         hand1 = super.hit(hand1)
         hand2 = super.hit(hand2)
+        for hand1:
+            self.total = super.total()
+            self.blackjack = super.blackjack()
+            return self.total_hand1, self.blackjack_hand1
+        for hand2:
+            self.total = super.total()
+            self.blackjack = super.blackjack()
+            return self.total_hand2, self.blackjack_hand2
+        return self.hand1, self.hand2, self.total_hand1, self.total_hand2, self.blackjack_hand1, self.blackjack_hand2
 
-    def double():
+    def double(self):
         if first_action == True:
-            hand = super.hit(hand)
+            self.hand = super.hit(self.hand)
+            self.total = super.total(self.hand)
             #add a line about the bet doubling
-            doubled = True
+            self.doubled = True
             return hand, doubled
-        if doubled == True:
-            player_end = True
-            return player_end
+        if self.doubled == True:
+            self.player_end = True
+            return self.player_end
+
+    def hit(self):
+        super.hit()
+        self.total = super.total()
+        return self.new_card, self.hand_total, self.hand 
+
+    def stand(self):
+        self.stand = True
+        if self.stand == True:
+            self.player_end = True
+            return self.player_end, self.stand
+
+    def bust_check():
+        self.total = super.total(self.hand)
+        if self.total > 21:
+            super.bust()
+            return self.bust, self.hand_end
+
+
 
 

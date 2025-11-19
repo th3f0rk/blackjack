@@ -3,30 +3,33 @@ from gameplay.hand import Hand
 
 class Dealer(Hand):
     def __init__(self):
-        self.hand = []
-        soft17 = False
-        stand = False
-        bust = False
+        super().__init__(self)
+        self.soft17 = False
+        self.stand = False
 
+    def deal(self):
+       super.deal()
+       if self.deal == True:
+           return self.blackjack, self.hand, self.total, self.deal
 
-    def soft17():
-        total = super.total(self.hand)
+    def soft17(self):
+        self.total = super.total()
         for card in self.hand:
-            if card == 11 and total == 17:
-                soft17 = True
+            if self.card == 11 and self.total == 17:
+                self.soft17 = True
     
-    def stand():
-        total = super.total(self.hand)
-        if total >= 17 and soft17 == False:
-            stand = True
-            return stand
+    def stand(self):
+        self.total = super.total()
+        if self.total >= 17 and self.soft17 == False:
+            self.stand = True
+            return self.stand
 
-    def hit():
-        total = super.total(self.hand)
-        if total <17 or soft17 == True:
-            hand = super.hit(self.hand)
+    def hit(self):
+        self.total = super.total()
+        if self.total <17 or self.soft17 == True:
+            self.hand = super.hit(self.hand)
 
-    def bust():
-        total = super.total(self.hand)
-        if total > 21:
-            bust = True
+    def bust(self):
+        self.total = super.total()
+        if self.total > 21:
+            self.bust = True
