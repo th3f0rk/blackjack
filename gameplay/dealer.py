@@ -35,7 +35,8 @@ class Dealer(Hand):
         self.hand_total = super.total()
         if self.hand_total <17 or self.issoft17 == True:
             self.hand = super.hit()
-        self.total()
+        super.total()
+        self.bust()
         return self.hand
 
     def bust(self):
