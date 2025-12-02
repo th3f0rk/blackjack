@@ -1,5 +1,5 @@
-from gameplay.player import Player
-from gameplay.dealer import Dealer
+from blackjack.gameplay.player import Player
+from blackjack.gameplay.dealer import Dealer
 
 class GameEngine:
     def __init__(self):
@@ -78,6 +78,10 @@ class GameEngine:
                 break
             else:
                 self.dealer.hit()
+                if self.dealer.isbust == True:
+                    self.isresult = "Win"
+                    self.turn = None
+                    return self.isresult
         self.turn = None
         self.result()
 

@@ -1,5 +1,5 @@
 import random
-from gameplay.hand import Hand
+from blackjack.gameplay.hand import Hand
 
 class Player(Hand):
     def __init__(self):
@@ -10,9 +10,9 @@ class Player(Hand):
         self.isstand = False
 
     def deal(self):
-        super.deal()
-        super.total()
-        super.blackjack()
+        super().deal()
+        super().total()
+        super().blackjack()
         self.player_end = False
         self.isbust = False
         self.isdoubled = False
@@ -22,9 +22,9 @@ class Player(Hand):
 
     def double(self):
         if self.isfirst == True:
-            super.hit()
-            super.total()
-            super.bust()
+            super().hit()
+            super().total()
+            super().bust()
             #add a line about the bet doubling
             self.isfirst = False
             self.isdoubled = True
@@ -32,9 +32,9 @@ class Player(Hand):
             return self.hand
 
     def hit(self):
-        super.hit()
-        super.total()
-        super.bust()
+        super().hit()
+        super().total()
+        super().bust()
         if self.isfirst == True:
             self.isfirst = False
         else:

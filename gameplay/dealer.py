@@ -1,5 +1,5 @@
 import random
-from gameplay.hand import Hand
+from blackjack.gameplay.hand import Hand
 
 class Dealer(Hand):
     def __init__(self):
@@ -9,7 +9,7 @@ class Dealer(Hand):
         self.dealer_end = False
 
     def deal(self):
-       super.deal()
+       super().deal()
        self.isbust = False
        self.issoft17 = False
        self.isstand = False
@@ -17,7 +17,7 @@ class Dealer(Hand):
        return self.hand
 
     def soft17(self):
-        self.hand_total = super.total()
+        self.hand_total = super().total()
         self.issoft17 = False
         for card in self.hand:
             if card == 11 and self.hand_total == 17:
@@ -25,22 +25,22 @@ class Dealer(Hand):
         return self.issoft17
     
     def stand(self):
-        self.hand_total = super.total()
+        self.hand_total = super().total()
         if self.hand_total >= 17 and self.issoft17 == False:
             self.isstand = True
             self.dealer_end = True
             return self.dealer_end
 
     def hit(self):
-        self.hand_total = super.total()
+        self.hand_total = super().total()
         if self.hand_total <17 or self.issoft17 == True:
-            self.hand = super.hit()
-        super.total()
+            self.hand = super().hit()
+        super().total()
         self.bust()
         return self.hand
 
     def bust(self):
-        super.bust()
+        super().bust()
         if self.isbust == True:
             self.dealer_end = True
         return self.dealer_end
