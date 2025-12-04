@@ -1,4 +1,5 @@
 __init__.py
+.DS_STORE
 __pycache__/
 engine/__init__.py
 engine/__pycache__/
