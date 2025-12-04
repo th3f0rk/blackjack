@@ -11,9 +11,17 @@ class GameEngine:
         self.isresult = None
 
     def start_round(self):
+        self.turn = "player"
         self.hide_card = True
+        self.isresult = None
+        self.player.isblackjack = False
+        self.player.isbust = False
         self.player.player_end = False
+        self.dealer.isblackjack = False
+        self.dealer.isbust = False
         self.dealer.dealer_end = False
+        self.player.hand = []
+        self.dealer.hand = []
         self.hide_card = True
         self.player.deal()
         self.dealer.deal()
@@ -62,28 +70,31 @@ class GameEngine:
         if self.turn == "player":
             self.player.stand()
             self.turn = "dealer"
-            self.run_dealer()
+            self.run_dealer_step()
 
-    def run_dealer(self):
-        while self.dealer.dealer_end == False:
-            self.dealer.total()
-            self.dealer.soft17()
-            self.hide_card = False
-            if self.dealer.isbust == True:
+    def run_dealer_step(self):
+        if self.turn is None or self.dealer.dealer_end:
+            return
+        self.hide_card = False
+        self.dealer.total()
+        self.dealer.soft17()
+        if self.dealer.isbust:
+            self.isresult = "Win"
+            self.turn = None
+            return
+        self.dealer.stand()
+
+        if self.dealer.isstand:
+            self.dealer.dealer_end = True
+            self.turn = None
+            self.result()
+        else:
+            self.dealer.hit()
+            if self.dealer.isbust:
                 self.isresult = "Win"
                 self.turn = None
-                return self.isresult
-            self.dealer.stand()
-            if self.dealer.isstand == True:
-                break
-            else:
-                self.dealer.hit()
-                if self.dealer.isbust == True:
-                    self.isresult = "Win"
-                    self.turn = None
-                    return self.isresult
-        self.turn = None
-        self.result()
+                return
+    
 
     def result(self):
         if self.player.hand_total > self.dealer.hand_total and self.player.player_end == True and self.dealer.dealer_end == True:
