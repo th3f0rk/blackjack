@@ -19,9 +19,11 @@ class Dealer(Hand):
     def soft17(self):
         self.hand_total = super().total()
         self.issoft17 = False
-        for card in self.hand:
-            if card == 11 and self.hand_total == 17:
-                self.issoft17 = True
+        if self.hand_total == 17:
+            for rank, value in self.hand:
+                if value == 11:
+                    self.issoft17 = True
+                    break
         return self.issoft17
     
     def stand(self):

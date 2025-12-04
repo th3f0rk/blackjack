@@ -1,7 +1,6 @@
 from blackjack.engine.engine import GameEngine
 from blackjack.assets import asset
 import pygame
-import random
 import sys
 
 pygame.init()
@@ -14,6 +13,13 @@ engine = GameEngine()
 game_state = 'waiting'
 running = True
 
+# Bankroll / betting
+bankroll = 1000
+current_bet = 0      # what the player is setting with chips
+active_bet = 0       # bet actually in play for the current hand
+round_num = 0
+payout_done = False  # to ensure we only pay out once per hand
+
 # Dealer timing control
 dealer_timer = 0
 DEALER_DELAY = 1000  # ms between dealer actions
@@ -25,7 +31,7 @@ menu_margin = 20
 chip_margin = 20
 wizard_margin = 20
 button_spacing = 20
-chip_spacing = 200
+chip_spacing = 125
 bottom_y = height - margin
 
 deal_rect = asset.deal_img.get_rect()
@@ -57,38 +63,57 @@ player_anchor = (width // 2, int(height * 0.69))
 CARD_SPACING = 40
 
 
-def get_card_image(value):
-    if value == 11 or value == 1:
+def get_card_image(card):
+    """
+    card is a (rank, value) tuple, e.g. ('K', 10), ('A', 11), ('nine', 9)
+    We only care about rank to pick the correct sprite.
+    """
+    rank, value = card
+
+    if rank == 'A':
         return asset.card_ace
-    if value == 10:
+    if rank == 'K':
+        return asset.card_king
+    if rank == 'Q':
+        return asset.card_queen
+    if rank == 'J':
+        return asset.card_jack
+    if rank == 'ten':
         return asset.card_ten
-    if value == 9:
+    if rank == 'nine':
         return asset.card_nine
-    if value == 8:
+    if rank == 'eight':
         return asset.card_eight
-    if value == 7:
+    if rank == 'seven':
         return asset.card_seven
-    if value == 6:
+    if rank == 'six':
         return asset.card_six
-    if value == 5:
+    if rank == 'five':
         return asset.card_five
-    if value == 4:
+    if rank == 'four':
         return asset.card_four
-    if value == 3:
+    if rank == 'three':
         return asset.card_three
-    if value == 2:
+    if rank == 'two':
         return asset.card_two
+
+    # Fallback – shouldn't happen, but avoids crashing
     return asset.card_back
 
 
-def draw_hand(values, anchor_pos, hide_first=False):
-    if not values:
+def draw_hand(cards, anchor_pos, hide_first=False):
+    """
+    cards: list of (rank, value) tuples from engine.player.hand / engine.dealer.hand
+    anchor_pos: (x, y) center of the hand
+    hide_first: if True, first card is drawn face-down
+    """
+    if not cards:
         return
 
     x_center, y_center = anchor_pos
-    n = len(values)
+    n = len(cards)
 
-    for i, value in enumerate(values):
+    for i, card in enumerate(cards):
         offset_index = i - (n - 1) / 2
         card_x = x_center + int(offset_index * CARD_SPACING)
         card_y = y_center
@@ -96,7 +121,7 @@ def draw_hand(values, anchor_pos, hide_first=False):
         if hide_first and i == 0:
             img = asset.card_back
         else:
-            img = get_card_image(value)
+            img = get_card_image(card)
 
         rect = img.get_rect(center=(card_x, card_y))
         screen.blit(img, rect)
@@ -105,6 +130,35 @@ def draw_hand(values, anchor_pos, hide_first=False):
 while running:
     screen.fill((0, 100, 0))
     lines = []
+
+    # HUD: bankroll / bet / round
+    lines.append(f"Bankroll: {bankroll}")
+    lines.append(f"Current Bet: {current_bet}")
+    lines.append(f"Round: {round_num}")
+
+    # instructions / result text
+    if game_state == 'waiting':
+        instructions = "Click a chip to set your bet, then click DEAL."
+    elif game_state == 'player_turn':
+        instructions = "Your turn: use HIT / STAND / DOUBLE."
+    elif game_state == 'dealer_turn':
+        instructions = "Dealer is playing..."
+    elif game_state == 'end':
+        instructions = "Hand over. Click DEAL for the next hand."
+    else:
+        instructions = ""
+
+    lines.append(instructions)
+
+    if engine.isresult is not None and game_state == 'end':
+        lines.append(f"Result: {engine.isresult}")
+
+    # draw HUD text
+    y = 20
+    for text in lines:
+        text_surface = font.render(text, True, (255, 255, 255))
+        screen.blit(text_surface, (50, y))
+        y += 30
 
     # chips
     screen.blit(asset.chip_5, chip5_rect)
@@ -128,28 +182,14 @@ while running:
         draw_hand(engine.dealer.hand, dealer_anchor, hide_first=dealer_hide_first)
         draw_hand(engine.player.hand, player_anchor, hide_first=False)
 
-    # instructions / result text
-    if game_state == 'waiting':
-        instructions = "Click DEAL to start a hand."
-    elif game_state == 'player_turn':
-        instructions = "Your turn: use HIT / STAND / DOUBLE."
-    elif game_state == 'dealer_turn':
-        instructions = "Dealer is playing..."
-    elif game_state == 'end':
-        instructions = "Hand over. Click DEAL for the next hand."
-    else:
-        instructions = ""
-
-    lines.append(instructions)
-
-    if engine.isresult is not None:
-        lines.append(f"Result: {engine.isresult}")
-
-    y = 50
-    for text in lines:
-        text_surface = font.render(text, True, (255, 255, 255))
-        screen.blit(text_surface, (50, y))
-        y += 40
+    # ---- Payout logic: apply once when a hand finishes ----
+    if game_state == "end" and not payout_done and engine.isresult is not None:
+        if engine.isresult == "Win":
+            bankroll += active_bet
+        elif engine.isresult == "Loss":
+            bankroll -= active_bet
+        # Push: no change
+        payout_done = True
 
     # timed dealer logic
     if game_state == "dealer_turn":
@@ -175,12 +215,28 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mouse_pos = event.pos
 
+            # ---- Chip clicks: only allowed before a hand starts or after it ends ----
+            if game_state in ("waiting", "end"):
+                if chip5_rect.collidepoint(mouse_pos):
+                    if bankroll >= 5:
+                        current_bet = 5
+                elif chip10_rect.collidepoint(mouse_pos):
+                    if bankroll >= 10:
+                        current_bet = 10
+                elif chip25_rect.collidepoint(mouse_pos):
+                    if bankroll >= 25:
+                        current_bet = 25
+
             # DEAL: start a new round from waiting or end
             if deal_rect.collidepoint(mouse_pos):
-                if game_state in ("waiting", "end"):
+                if game_state in ("waiting", "end") and current_bet > 0 and bankroll >= current_bet:
                     engine.start_round()
                     game_state = "player_turn"
                     dealer_phase = 0  # reset for future dealer turn
+                    payout_done = False
+                    round_num += 1
+                    # lock in the bet for this hand
+                    active_bet = current_bet
 
             if game_state == "player_turn":
                 # HIT
