@@ -1,0 +1,4 @@
+.DS_STORE
+__pycache__/
+engine/__pycache__/
+gameplay/__pycache__/
